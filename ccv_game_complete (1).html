@@ -1,0 +1,906 @@
+        
+        // Initialize
+        setTimeout(() => {
+            updateStats();
+        }, 1000);<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCV Payment Connect - Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+        }
+        .game-container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border: 3px solid #2a5298;
+            box-sizing: border-box;
+        }
+        .game-header {
+            text-align: center;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .game-header h1 {
+            margin: 0;
+            font-size: clamp(18px, 4vw, 24px);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .game-area {
+            position: relative;
+            height: 70vh;
+            min-height: 400px;
+            max-height: 600px;
+            background: linear-gradient(135deg, #e8f4fd 0%, #d6e9ff 50%, #f0f7ff 100%);
+            border-radius: 10px;
+            border: 3px solid #2a5298;
+            overflow: hidden;
+            box-shadow: inset 0 5px 20px rgba(42, 82, 152, 0.1);
+        }
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, rgba(42, 82, 152, 0.95), rgba(30, 60, 114, 0.95));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            z-index: 1000;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .start-screen.hidden {
+            display: none;
+        }
+        .start-screen h2 {
+            font-size: clamp(18px, 4vw, 24px);
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .start-screen p {
+            font-size: clamp(12px, 2.5vw, 14px);
+            line-height: 1.4;
+            margin: 8px 0;
+            max-width: 90%;
+        }
+        .game-objective {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 2px solid rgba(255,255,255,0.2);
+            max-width: 90%;
+        }
+        .game-objective h3 {
+            margin: 0 0 8px 0;
+            font-size: clamp(14px, 3vw, 18px);
+        }
+        .game-objective p {
+            margin: 0;
+            font-size: clamp(11px, 2vw, 13px);
+        }
+        .how-to-play {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 2px solid rgba(255,255,255,0.2);
+            text-align: left;
+            max-width: 90%;
+        }
+        .how-to-play h3 {
+            text-align: center;
+            margin: 0 0 10px 0;
+            color: #ff6b35;
+            font-size: clamp(14px, 3vw, 18px);
+        }
+        .how-to-play ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .how-to-play li {
+            margin: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: clamp(10px, 2vw, 12px);
+            line-height: 1.3;
+        }
+        .how-to-play li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #ff6b35;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .start-button {
+            background: linear-gradient(145deg, #ff6b35, #e55100);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: clamp(14px, 3vw, 16px);
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 10px 0;
+            box-shadow: 0 6px 20px rgba(229, 81, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(229, 81, 0, 0.4);
+        }
+        .difficulty-selector {
+            margin: 10px 0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .difficulty-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 6px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(10px, 2vw, 12px);
+        }
+        .difficulty-btn.selected {
+            background: rgba(255, 107, 53, 0.8);
+            border-color: #ff6b35;
+        }
+        .difficulty-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .queue-area {
+            position: absolute;
+            left: 2%;
+            top: 2%;
+            width: 35%;
+            height: 96%;
+            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,249,250,0.95));
+            border-radius: 10px;
+            border: 2px solid #2a5298;
+            padding: 10px;
+            box-shadow: 0 8px 25px rgba(42, 82, 152, 0.2);
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+        .queue-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2a5298;
+            font-size: clamp(12px, 2.5vw, 16px);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .customer {
+            position: relative;
+            width: 90%;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            font-size: 10px;
+            margin: 5px auto;
+        }
+        .customer:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .customer.selected {
+            border: 3px solid #ff6b35;
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.4);
+        }
+        .customer.calm { 
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+        }
+        .customer.normal { 
+            background: linear-gradient(145deg, #FF9800, #f57c00);
+        }
+        .customer.impatient { 
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+        }
+        .customer.waiting { 
+            background: linear-gradient(145deg, #9C27B0, #7b1fa2);
+            animation: customerPulse 1s infinite;
+        }
+        @keyframes customerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 6px 25px rgba(156, 39, 176, 0.4); }
+        }
+        .customer-icons {
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+        .customer-timer {
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            background: rgba(0,0,0,0.4);
+            padding: 1px 4px;
+            border-radius: 8px;
+        }
+        .terminal {
+            position: absolute;
+            width: 18%;
+            min-width: 80px;
+            height: 25%;
+            min-height: 100px;
+            background: linear-gradient(145deg, #2a5298 0%, #1e3c72 100%);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border: 3px solid #fff;
+            box-shadow: 0 8px 25px rgba(42, 82, 152, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            overflow: hidden;
+        }
+        .terminal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        .terminal:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 12px 30px rgba(42, 82, 152, 0.4);
+        }
+        .terminal:hover::before {
+            transform: translateX(100%);
+        }
+        .terminal.busy {
+            background: linear-gradient(145deg, #ff6b35 0%, #e55100 100%);
+            animation: terminalWorking 1s ease-in-out infinite;
+        }
+        @keyframes terminalWorking {
+            0%, 100% { box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3); }
+            50% { box-shadow: 0 8px 25px rgba(255, 107, 53, 0.6); }
+        }
+        .terminal-title {
+            font-size: clamp(8px, 1.5vw, 12px);
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .terminal-icon {
+            font-size: clamp(20px, 4vw, 40px);
+            margin-bottom: 5px;
+        }
+        .terminal-status {
+            font-size: clamp(8px, 1.2vw, 10px);
+            text-align: center;
+        }
+        .phone {
+            position: absolute;
+            top: 2%;
+            right: 2%;
+            width: 12%;
+            min-width: 60px;
+            height: 15%;
+            min-height: 80px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.3);
+            transition: all 0.3s ease;
+        }
+        .phone:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 10px 30px rgba(44, 62, 80, 0.4);
+        }
+        .phone.ringing {
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            animation: phoneRing 0.5s infinite;
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5);
+        }
+        @keyframes phoneRing {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-8deg) scale(1.05); }
+            75% { transform: rotate(8deg) scale(1.05); }
+        }
+        .phone-icon {
+            font-size: clamp(20px, 4vw, 30px);
+            color: white;
+        }
+        .phone-timer {
+            font-size: clamp(8px, 1.5vw, 10px);
+            color: white;
+            margin-top: 3px;
+        }
+        .chaos-meter {
+            position: absolute;
+            top: 20%;
+            right: 2%;
+            width: 12%;
+            min-width: 60px;
+            height: 4%;
+            min-height: 15px;
+            background: linear-gradient(90deg, #ecf0f1, #bdc3c7);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #2a5298;
+            box-shadow: 0 3px 10px rgba(42, 82, 152, 0.2);
+        }
+        .chaos-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #f39c12, #e74c3c);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chaos-label {
+            position: absolute;
+            top: 17%;
+            right: 2%;
+            font-size: clamp(8px, 1.5vw, 11px);
+            font-weight: bold;
+            color: #2a5298;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+        .instructions {
+            text-align: center;
+            margin-top: 15px;
+            font-size: clamp(12px, 2.5vw, 16px);
+            color: #2a5298;
+            background: linear-gradient(145deg, rgba(42, 82, 152, 0.1), rgba(30, 60, 114, 0.1));
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid rgba(42, 82, 152, 0.2);
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+        .feedback {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        .feedback.show { opacity: 1; }
+        .feedback.success { background: #4CAF50; color: white; }
+        .feedback.fail { background: #f44336; color: white; }
+        .feedback.warning { background: #FF9800; color: white; }
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+            background: rgba(42, 82, 152, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid rgba(42, 82, 152, 0.2);
+        }
+        .stat {
+            text-align: center;
+            background: linear-gradient(145deg, #fff, #f8f9fa);
+            padding: 8px 10px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            min-width: 60px;
+        }
+        .stat-value {
+            font-size: clamp(16px, 3vw, 22px);
+            font-weight: bold;
+            color: #2a5298;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .stat-label {
+            font-size: clamp(10px, 2vw, 12px);
+            color: #5a6c7d;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <div style="background: white; padding: 8px 15px; border-radius: 10px; display: flex; align-items: center; justify-content: center; min-height: 40px;">
+                    <!-- CCV Logo -->
+                    <div style="font-family: Arial, sans-serif; font-weight: bold; font-size: clamp(16px, 3vw, 24px); display: flex; align-items: center; gap: 5px;">
+                        <span style="color: #333; letter-spacing: 1px;">CCV</span>
+                        <span style="color: #666; font-size: clamp(12px, 2vw, 16px); font-weight: normal;">is now part of</span>
+                        <span style="color: #ff6b35; font-weight: bold;">fiserv.</span>
+                    </div>
+                </div>
+                <h1 style="margin: 0; font-size: clamp(16px, 3vw, 22px); color: white;">Payment Connect Game</h1>
+            </div>
+            <div class="game-stats">
+                <div class="stat">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="satisfied">0</div>
+                    <div class="stat-label">Geholpen</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="angry">0</div>
+                    <div class="stat-label">Weggelopen</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="phoneScore">0</div>
+                    <div class="stat-label">Telefoon</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <!-- Start Screen -->
+            <div class="start-screen" id="startScreen">
+                <h2>🎮 Welkom bij CCV Payment Connect!</h2>
+                
+                <div class="game-objective">
+                    <h3 style="color: #ff6b35; margin-bottom: 10px;">🎯 Het Doel</h3>
+                    <p>Als CCV medewerker help je klanten met hun betalingsproblemen. Hoe sneller en efficiënter je werkt, hoe hoger je score!</p>
+                </div>
+                
+                <div class="how-to-play">
+                    <h3>📋 Hoe Speel Je?</h3>
+                    <ul>
+                        <li><strong>Klanten in wachtrij:</strong> Klik op een klant om te selecteren</li>
+                        <li><strong>Naar terminal:</strong> Klik daarna op een beschikbare CCV terminal</li>
+                        <li><strong>Telefoon:</strong> Beantwoord rinkelde telefoon snel (📞)</li>
+                        <li><strong>Prioriteiten:</strong> Rode klanten = ongeduldig, help eerst!</li>
+                        <li><strong>Chaos meter:</strong> Wordt te vol? Game over!</li>
+                    </ul>
+                </div>
+                
+                <p><strong>💡 Tip:</strong> Het spel wordt steeds sneller. Start rustig, maar bereid je voor op chaos!</p>
+                
+                <div class="difficulty-selector">
+                    <div class="difficulty-btn selected" data-difficulty="normal">😊 Normaal</div>
+                    <div class="difficulty-btn" data-difficulty="hard">😤 Uitdagend</div>
+                    <div class="difficulty-btn" data-difficulty="chaos">🔥 Pure Chaos</div>
+                </div>
+                
+                <button class="start-button" id="startButton">🚀 Start CCV Challenge!</button>
+            </div>
+            
+            <!-- Wachtrij -->
+            <div class="queue-area">
+                <div class="queue-title">📋 Wachtrij</div>
+                <div id="queueCustomers"></div>
+            </div>
+            
+            <!-- Terminals -->
+            <div class="terminal" id="terminal1" style="right: 2%; top: 30%;" data-terminal="1">
+                <div class="terminal-title">CCV Terminal #1</div>
+                <div class="terminal-icon">🏪</div>
+                <div class="terminal-status">Beschikbaar</div>
+            </div>
+            
+            <div class="terminal" id="terminal2" style="right: 2%; top: 58%;" data-terminal="2">
+                <div class="terminal-title">CCV Terminal #2</div>
+                <div class="terminal-icon">💳</div>
+                <div class="terminal-status">Beschikbaar</div>
+            </div>
+            
+            <div class="terminal" id="terminal3" style="right: 22%; top: 58%;" data-terminal="3">
+                <div class="terminal-title">CCV Terminal #3</div>
+                <div class="terminal-icon">📱</div>
+                <div class="terminal-status">Beschikbaar</div>
+            </div>
+            
+            <!-- Telefoon -->
+            <div class="phone" id="phone">
+                <div class="phone-icon">📞</div>
+                <div class="phone-timer" id="phoneTimer"></div>
+            </div>
+            
+            <!-- Chaos Meter -->
+            <div class="chaos-label">Chaos Level:</div>
+            <div class="chaos-meter">
+                <div class="chaos-fill" id="chaosFill"></div>
+            </div>
+            
+            <!-- Feedback -->
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="instructions" id="gameInstructions" style="display: none;">
+            🎯 <strong>Multi-tasking Uitdaging!</strong><br>
+            📋 Wachtrij → Terminal | 📞 Beantwoord rinkelde telefoon | ⚡ Chaos = Game Over!
+        </div>
+    </div>
+
+    <script>
+        // Game variabelen
+        let score = 0;
+        let satisfiedCustomers = 0;
+        let angryCustomers = 0;
+        let phoneScore = 0;
+        let customers = [];
+        let queueCustomers = [];
+        let selectedCustomer = null;
+        let terminals = { 1: null, 2: null, 3: null };
+        let phoneRinging = false;
+        let phoneTimer = 0;
+        let chaosLevel = 0;
+        let gameRunning = false;
+        let gameTime = 0;
+        let customerSpawnRate = 8000;
+        let difficulty = 'normal';
+        let gameStarted = false;
+
+        // Klant types
+        const customerTypes = [
+            { mood: 'calm', timer: 25, icons: '😊💳', problem: 'Normale betaling', points: 10 },
+            { mood: 'normal', timer: 15, icons: '😐📱', problem: 'Contactloos', points: 15 },
+            { mood: 'impatient', timer: 8, icons: '😤💳❌', problem: 'Kapotte kaart', points: 25 },
+            { mood: 'impatient', timer: 6, icons: '😠🏃', problem: 'Super haast!', points: 30 }
+        ];
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('satisfied').textContent = satisfiedCustomers;
+            document.getElementById('angry').textContent = angryCustomers;
+            document.getElementById('phoneScore').textContent = phoneScore;
+            
+            // Chaos level updaten
+            const chaos = Math.min(100, (queueCustomers.length * 20) + (phoneRinging ? 30 : 0) + (Object.values(terminals).filter(t => t !== null).length * 10));
+            chaosLevel = chaos;
+            document.getElementById('chaosFill').style.width = chaos + '%';
+            
+            // Game over bij te veel chaos
+            if (chaos >= 100 && gameRunning) {
+                gameOver();
+            }
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback show ${type}`;
+            
+            setTimeout(() => {
+                feedback.className = 'feedback';
+            }, 2000);
+        }
+
+        function createCustomer() {
+            if (!gameRunning) return;
+            
+            const type = customerTypes[Math.floor(Math.random() * customerTypes.length)];
+            const customer = {
+                id: 'customer_' + Date.now(),
+                ...type,
+                timeLeft: type.timer,
+                isWaiting: false
+            };
+
+            queueCustomers.push(customer);
+            updateQueueDisplay();
+            
+            // Timer starten
+            customer.interval = setInterval(() => {
+                customer.timeLeft--;
+                
+                // Extra ongeduld als ze wachten
+                if (customer.isWaiting) {
+                    customer.timeLeft -= 0.5;
+                }
+                
+                if (customer.timeLeft <= 0) {
+                    customerLeft(customer);
+                }
+                updateQueueDisplay();
+            }, 1000);
+        }
+
+        function updateQueueDisplay() {
+            const queueDiv = document.getElementById('queueCustomers');
+            queueDiv.innerHTML = '';
+            
+            queueCustomers.forEach((customer, index) => {
+                const customerEl = document.createElement('div');
+                customerEl.className = `customer ${customer.mood} ${customer.isWaiting ? 'waiting' : ''}`;
+                customerEl.style.position = 'relative';
+                customerEl.style.margin = '5px 0';
+                customerEl.onclick = () => selectCustomer(customer);
+                
+                customerEl.innerHTML = `
+                    <div class="customer-icons">${customer.icons}</div>
+                    <div class="customer-timer">${Math.max(0, Math.floor(customer.timeLeft))}s</div>
+                `;
+                
+                queueDiv.appendChild(customerEl);
+            });
+        }
+
+        function selectCustomer(customer) {
+            // Deselect alle klanten
+            queueCustomers.forEach(c => c.selected = false);
+            
+            // Selecteer deze klant
+            customer.selected = true;
+            selectedCustomer = customer;
+            updateQueueDisplay();
+            
+            // Visual feedback
+            document.querySelectorAll('.customer').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.customer').classList.add('selected');
+        }
+
+        function helpCustomerAtTerminal(terminalId) {
+            if (!selectedCustomer) {
+                showFeedback('Selecteer eerst een klant uit de wachtrij!', 'warning');
+                return;
+            }
+            
+            if (terminals[terminalId] !== null) {
+                showFeedback('Terminal is bezet!', 'fail');
+                return;
+            }
+            
+            const customer = selectedCustomer;
+            
+            // Klant naar terminal verplaatsen
+            terminals[terminalId] = customer;
+            const terminalEl = document.getElementById('terminal' + terminalId);
+            terminalEl.classList.add('busy');
+            terminalEl.querySelector('.terminal-status').textContent = 'Bezet...';
+            
+            // Uit wachtrij verwijderen
+            const queueIndex = queueCustomers.indexOf(customer);
+            if (queueIndex > -1) {
+                queueCustomers.splice(queueIndex, 1);
+            }
+            
+            // Andere klanten worden ongeduldig
+            queueCustomers.forEach(c => c.isWaiting = true);
+            
+            selectedCustomer = null;
+            updateQueueDisplay();
+            
+            // Simuleer verwerking (2-4 seconden)
+            const processingTime = Math.random() * 2000 + 2000;
+            setTimeout(() => {
+                finishCustomerAtTerminal(terminalId, customer);
+            }, processingTime);
+        }
+
+        function finishCustomerAtTerminal(terminalId, customer) {
+            clearInterval(customer.interval);
+            
+            // Punten berekenen
+            const timeBonus = Math.max(0, Math.floor(customer.timeLeft / 2));
+            const totalPoints = customer.points + timeBonus;
+            
+            score += totalPoints;
+            satisfiedCustomers++;
+            
+            showFeedback(`Terminal ${terminalId}: +${totalPoints} punten!`, 'success');
+            
+            // Terminal vrijmaken
+            terminals[terminalId] = null;
+            const terminalEl = document.getElementById('terminal' + terminalId);
+            terminalEl.classList.remove('busy');
+            terminalEl.querySelector('.terminal-status').textContent = 'Beschikbaar';
+            
+            updateStats();
+        }
+
+        function customerLeft(customer) {
+            clearInterval(customer.interval);
+            angryCustomers++;
+            score = Math.max(0, score - 15);
+            
+            showFeedback('Klant weggelopen! -15 punten!', 'fail');
+            
+            // Uit wachtrij verwijderen
+            const queueIndex = queueCustomers.indexOf(customer);
+            if (queueIndex > -1) {
+                queueCustomers.splice(queueIndex, 1);
+            }
+            
+            if (selectedCustomer === customer) {
+                selectedCustomer = null;
+            }
+            
+            updateQueueDisplay();
+            updateStats();
+        }
+
+        function startPhoneCall() {
+            if (phoneRinging || !gameRunning) return;
+            
+            phoneRinging = true;
+            phoneTimer = 10;
+            document.getElementById('phone').classList.add('ringing');
+            
+            const phoneInterval = setInterval(() => {
+                phoneTimer--;
+                document.getElementById('phoneTimer').textContent = phoneTimer + 's';
+                
+                if (phoneTimer <= 0) {
+                    clearInterval(phoneInterval);
+                    if (phoneRinging) {
+                        // Gemiste oproep
+                        score = Math.max(0, score - 20);
+                        showFeedback('Gemiste oproep! -20 punten!', 'fail');
+                        phoneRinging = false;
+                        document.getElementById('phone').classList.remove('ringing');
+                        document.getElementById('phoneTimer').textContent = '';
+                    }
+                    updateStats();
+                }
+            }, 1000);
+        }
+
+        function answerPhone() {
+            if (!phoneRinging) return;
+            
+            phoneRinging = false;
+            phoneScore += 5;
+            score += 5;
+            
+            showFeedback('Telefoon beantwoord! +5 punten!', 'success');
+            
+            document.getElementById('phone').classList.remove('ringing');
+            document.getElementById('phoneTimer').textContent = '';
+            updateStats();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            showFeedback(`GAME OVER! Chaos Level 100%! Final Score: ${score}`, 'fail');
+            
+            // Stop alle timers
+            customers.forEach(c => clearInterval(c.interval));
+            queueCustomers.forEach(c => clearInterval(c.interval));
+        }
+
+        // Difficulty selector
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                difficulty = this.dataset.difficulty;
+            });
+        });
+
+        // Game starten
+        function startGame() {
+            if (gameStarted) return;
+            
+            gameStarted = true;
+            gameRunning = true;
+            
+            // Difficulty settings
+            switch(difficulty) {
+                case 'normal':
+                    customerSpawnRate = 8000;
+                    break;
+                case 'hard':
+                    customerSpawnRate = 6000;
+                    break;
+                case 'chaos':
+                    customerSpawnRate = 4000;
+                    break;
+            }
+            
+            // Verberg start screen
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameInstructions').style.display = 'block';
+            
+            // Game timer voor progressieve moeilijkheid
+            setInterval(() => {
+                if (gameRunning) {
+                    gameTime++;
+                    
+                    // Elke 10 seconden worden klanten sneller
+                    if (gameTime % 10 === 0) {
+                        customerSpawnRate = Math.max(2000, customerSpawnRate - 500);
+                        showFeedback(`Sneller tempo! Klanten elke ${customerSpawnRate/1000}s`, 'warning');
+                    }
+                }
+            }, 1000);
+            
+            // Eerste klanten langzaam
+            setTimeout(() => createCustomer(), 2000);
+            setTimeout(() => createCustomer(), 5000);
+            
+            // Klanten spawnen met variabele snelheid
+            function scheduleNextCustomer() {
+                if (gameRunning && queueCustomers.length < 8) {
+                    createCustomer();
+                }
+                
+                // Plan volgende klant met huidige spawn rate
+                const nextSpawn = customerSpawnRate + (Math.random() * 2000); // +0-2 sec variatie
+                setTimeout(scheduleNextCustomer, nextSpawn);
+            }
+            
+            // Start klant spawning na 8 seconden
+            setTimeout(scheduleNextCustomer, 8000);
+            
+            // Telefoon gaat ook progressief sneller
+            function scheduleNextCall() {
+                if (gameRunning && Math.random() < 0.7) {
+                    startPhoneCall();
+                }
+                
+                // Telefoon gaat sneller naarmate spel vordert
+                const phoneRate = Math.max(8000, 20000 - (gameTime * 100));
+                setTimeout(scheduleNextCall, phoneRate);
+            }
+            
+            setTimeout(scheduleNextCall, 15000);
+            
+            showFeedback(`${difficulty.toUpperCase()} mode gestart! 🚀`, 'success');
+        }
+
+        // Event listeners toevoegen
+        document.getElementById('terminal1').addEventListener('click', () => helpCustomerAtTerminal(1));
+        document.getElementById('terminal2').addEventListener('click', () => helpCustomerAtTerminal(2));
+        document.getElementById('terminal3').addEventListener('click', () => helpCustomerAtTerminal(3));
+        document.getElementById('phone').addEventListener('click', answerPhone);
+        
+        // Start button event listener
+        document.getElementById('startButton').addEventListener('click', startGame);
+
+        // Difficulty selector
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                difficulty = this.dataset.difficulty;
+            });
+        });
+    </script>
+</body>
+</html>
